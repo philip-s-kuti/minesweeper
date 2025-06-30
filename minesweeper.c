@@ -4,23 +4,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <termios.h>
 
 //TODO
-/* the whole calculateCellMineValue
- * implement termios
+/* implement termios
  * implement the terminal clear screen character '\e[1;1H\e[2J'
+ * make a start menu with a start and exit "button" (i want to do this after i implement termios so i can have a cursor go between the options, like the start menu in dwarf fortress)
+ * make a method for mining a cell
+ * make a method for flagging a cell
+ * make a method for a game over & one for winning? probably do this once i can actually get the game to work lol (as in after termios :/)
+ * also for the game over, i want the mine the user mined to blink in and out to make it very clear where they messed up lol
 */
 
 typedef struct Cell Cell;
 struct Cell {
 	bool isMine; //whether the cell contains a mine or not
+	bool flagged; //whether a flag has been placed on the cell
+	bool mined; //whether the user has mined the cell
 	int value; //how many mines are around the cell
 };
-
-void initCell (Cell* c, bool isMine) {
-	c->isMine = isMine;
-	c->value = 0;
-}
 
 //only need to call this once at the beginning of the program
 //should probably make this more dry but whatever. maybe later
@@ -136,6 +138,8 @@ Cell** initBoard(int boardSize) { //since the board will always be square, we ju
 		for(int j = 0; j < boardSize; j++) {
 			c[i][j].value = 0;
 			c[i][j].isMine = false;
+			c[i][j].mined = true;
+			c[i][j].flagged = false;
 		}
 	}
 	return c;
@@ -146,19 +150,29 @@ void printBoard(Cell** board, int size) {
 	
 	for(int i = 0; i < size; i++) {
 		for(int j = 0; j < size; j++) {
-				
-			if(board[i][j].isMine) {
-				printf("O");
+			
+			if(!board[i][j].mined) {
+				printf("■"); //U+25A0
 			}
+			
+			else if(board[i][j].flagged) {
+				printf("⚑"); //flag character U+2691
+			}
+			
 			else {
-				if(board[i][j].value > 0) {
-					printf("%d", board[i][j].value);
+				if(board[i][j].isMine) {
+					printf("!");
 				}
 				else {
-					printf(".");
+					if(board[i][j].value > 0) {
+						printf("%d", board[i][j].value);
+					}
+					else {
+						printf("⬞"); //small square U+25AB
+					}
 				}
 			}
-			printf(" "); //for spacing
+			printf(" "); //for spacing, since printing in the terminal makes characters on different lines further apart than when they are in sequence
 		}
 		printf("\n");
 	}
