@@ -10,7 +10,7 @@
 /* implement termios
  * implement the terminal clear screen character '\e[1;1H\e[2J'
  * make a start menu with a start and exit "button" (i want to do this after i implement termios so i can have a cursor go between the options, like the start menu in dwarf fortress)
- * make a method for mining a cell
+ * make a method for mining a cell, also make a helper method that will clear all cells that have a value equal to 0
  * make a method for flagging a cell
  * make a method for a game over & one for winning? probably do this once i can actually get the game to work lol (as in after termios :/)
  * also for the game over, i want the mine the user mined to blink in and out to make it very clear where they messed up lol
@@ -145,6 +145,13 @@ Cell** initBoard(int boardSize) { //since the board will always be square, we ju
 	return c;
 }
 
+void freeBoard(Cell** board, int size) {
+	for(int i = 0; i < size; i++) {
+		free(board[i])
+	}
+	free(board);
+}
+
 
 void printBoard(Cell** board, int size) {
 	
@@ -223,7 +230,7 @@ int main (int argc, char** argv) {
 	calculateCellMineValue(board, boardSize);
 	
 	printBoard(board, boardSize);
-	
+	freeBoard(board, boardSize);
 	
 	
 	return EXIT_SUCCESS;
