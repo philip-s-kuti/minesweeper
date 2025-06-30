@@ -10,11 +10,9 @@
 /* implement termios
  * implement the terminal clear screen character '\e[1;1H\e[2J'
  * make a start menu with a start and exit "button" (i want to do this after i implement termios so i can have a cursor go between the options, like the start menu in dwarf fortress)
- * make a method for mining a cell, also make a helper method that will clear all cells that have a value equal to 0
- * make a method for flagging a cell
- * make a method for a game over & one for winning? probably do this once i can actually get the game to work lol (as in after termios :/)
+ * make a method for a game over & one for winning? probably do this once i can actually get the game to work lol (as in after termios is implemented :/)
  * also for the game over, i want the mine the user mined to blink in and out to make it very clear where they messed up lol
-*/
+ */
 
 typedef struct Cell Cell;
 struct Cell {
@@ -125,6 +123,46 @@ void setMine(int x, int y, Cell** board) {
 	board[y][x].isMine = true;
 }
 
+void setFlag(int x, int y, Cell** board) {
+	if(!board[y][x].mined) {
+		board[y][x].flagged = true;
+	}
+}
+
+void removeFlag(int x, int y, Cell** board) {
+	board[y][x].flagged = false;
+}
+
+//to be used by the mineCell method for clearing any cells that have a value of 0
+void clearEmptyCells(int x, int y, Cell** board, int size) {
+	board[y][x].mined = true;
+	if(board[y][x].value > 0) return;
+	else {
+		for(int i = x - 1; i <= x + 1; i++) {
+			for(int j = y - 1; j <= y + 1; j++) {
+				if((i == x && j == y) || x == 0 || y == 0 || x == size - 1 || y == size - 1) {
+					continue;
+				}
+				else {
+					if(!board[j][i].mined) {
+						clearEmptyCells(i, j, board, size);
+					}
+				}
+				
+			}
+		}
+	}
+}
+
+void mineCell(int x, int y, Cell** board, int size) {
+	if(board[y][x].isMine) {
+		//TODO end game method goes here
+	}
+	clearEmptyCells(x, y, board, size);
+}
+
+
+
 Cell** initBoard(int boardSize) { //since the board will always be square, we just take one value and square it for the dimensions of the board
 	
 	//malloc the board
@@ -138,7 +176,7 @@ Cell** initBoard(int boardSize) { //since the board will always be square, we ju
 		for(int j = 0; j < boardSize; j++) {
 			c[i][j].value = 0;
 			c[i][j].isMine = false;
-			c[i][j].mined = true;
+			c[i][j].mined = false;
 			c[i][j].flagged = false;
 		}
 	}
@@ -147,7 +185,7 @@ Cell** initBoard(int boardSize) { //since the board will always be square, we ju
 
 void freeBoard(Cell** board, int size) {
 	for(int i = 0; i < size; i++) {
-		free(board[i])
+		free(board[i]);
 	}
 	free(board);
 }
@@ -186,7 +224,7 @@ void printBoard(Cell** board, int size) {
 	
 }
 
-void printMinesweeper() {
+void printMinesweeper() { //art from patorjk.com's text to ascii art generator
 	printf(" __   __  ___   __    _  _______  _______  _     _  _______  _______  _______  _______  ______   \n");
 	printf("|  |_|  ||   | |  |  | ||       ||       || | _ | ||       ||       ||       ||       ||    _ |  \n");
 	printf("|       ||   | |   |_| ||    ___||  _____|| || || ||    ___||    ___||    _  ||    ___||   | ||  \n");
@@ -197,7 +235,7 @@ void printMinesweeper() {
 }
 
 void start() {
-	printf("\n\n");
+	printf("\n");
 	printMinesweeper();
 	printf("\n\n");
 }
@@ -210,7 +248,7 @@ int main (int argc, char** argv) {
 	int boardSize = 20;
 	Cell** board = initBoard(boardSize);
 	
-	setMine(5, 5, board);
+	/*setMine(5, 5, board);
 	setMine(6, 5, board);
 	setMine(7, 4, board);
 	
@@ -221,13 +259,49 @@ int main (int argc, char** argv) {
 	setMine(0, 0, board);
 	setMine(0, 19, board);
 	setMine(19, 0, board); 
-	setMine(19, 19, board);
+	setMine(19, 19, board);*/
+	
+	
+	
+	setMine(5, 5, board);
+	setMine(6, 5, board);
+	setMine(7, 5, board);
+	setMine(8, 5, board);
+	setMine(9, 5, board);
+	setMine(10, 5, board);
+	setMine(11, 5, board);
+	
+	setMine(11, 6, board);
+	setMine(11, 7, board);
+	setMine(11, 8, board);
+	setMine(11, 9, board);
+	setMine(11, 10, board);
+	setMine(11, 11, board);
+	
+	setMine(10, 11, board);
+	//setMine(9, 11, board);
+	//setMine(8, 11, board);
+	//setMine(7, 11, board);
+	setMine(6, 11, board);
+	setMine(5, 11, board);
+	
+	setMine(5, 10, board);
+	setMine(5, 9, board);
+	setMine(5, 8, board);
+	setMine(5, 7, board);
+	setMine(5, 6, board);
+	
+	
+	
+	
 	
 	//setMine(0, 5, board);
 	
 	//TODO do the edge cases for the corners as well
 	
 	calculateCellMineValue(board, boardSize);
+	
+	mineCell(8, 8, board, boardSize);
 	
 	printBoard(board, boardSize);
 	freeBoard(board, boardSize);
