@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <termios.h>
+#include <time.h>
 
 //TODO
 /* implement termios
@@ -161,6 +162,19 @@ void mineCell(int x, int y, Cell** board, int size) {
 	clearEmptyCells(x, y, board, size);
 }
 
+//0 >= difficultyFactor >= 99
+void generateMines(Cell** board, int size, int difficultyFactor) {
+	srand(time(NULL));
+	
+	for(int i = 0; i < size; i++) {
+		for(int j = 0; j < size; j++) {
+			if(rand() % 100 < difficultyFactor) {
+				board[i][j].isMine = true;
+			}
+		}
+	}
+}
+
 
 
 Cell** initBoard(int boardSize) { //since the board will always be square, we just take one value and square it for the dimensions of the board
@@ -176,7 +190,7 @@ Cell** initBoard(int boardSize) { //since the board will always be square, we ju
 		for(int j = 0; j < boardSize; j++) {
 			c[i][j].value = 0;
 			c[i][j].isMine = false;
-			c[i][j].mined = false;
+			c[i][j].mined = true;
 			c[i][j].flagged = false;
 		}
 	}
@@ -238,15 +252,20 @@ void start() {
 	printf("\n");
 	printMinesweeper();
 	printf("\n\n");
+	
+	//do some stuff here with like a switch statement or something in conjunction with taking user input with termios idk
+	
+	printf(">Start<");
 }
 
 
 int main (int argc, char** argv) {
 	
-	start();
+	//start();
 	
 	int boardSize = 20;
 	Cell** board = initBoard(boardSize);
+	generateMines(board, boardSize, 12);
 	
 	/*setMine(5, 5, board);
 	setMine(6, 5, board);
@@ -263,7 +282,7 @@ int main (int argc, char** argv) {
 	
 	
 	
-	setMine(5, 5, board);
+	/*setMine(5, 5, board);
 	setMine(6, 5, board);
 	setMine(7, 5, board);
 	setMine(8, 5, board);
@@ -289,7 +308,7 @@ int main (int argc, char** argv) {
 	setMine(5, 9, board);
 	setMine(5, 8, board);
 	setMine(5, 7, board);
-	setMine(5, 6, board);
+	setMine(5, 6, board);*/
 	
 	
 	
@@ -301,7 +320,7 @@ int main (int argc, char** argv) {
 	
 	calculateCellMineValue(board, boardSize);
 	
-	mineCell(8, 8, board, boardSize);
+	//mineCell(8, 8, board, boardSize);
 	
 	printBoard(board, boardSize);
 	freeBoard(board, boardSize);
